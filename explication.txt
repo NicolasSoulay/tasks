@@ -1,0 +1,61 @@
+import Coopernet from "./Coopernet.js";
+/**
+ * Stocker le mot de passe et le login dans la classe
+ * afin que setPayload() puisse s'en servir lors de la première connexion
+ */
+
+Coopernet.setUsername('y');
+Coopernet.setPassword('y');
+
+/**
+ * Lors du submit du formulaire de connexion,
+ * on appelle setOauthToken afin de se connecter
+ * Cette fonction stock le refresh_token dans le localStorage.
+ */
+await Coopernet.setOAuthToken();
+
+/**
+ * Récupération des tâches
+ */
+const tasks = await Coopernet.getTasks();
+
+/**
+ * Pour la création de tâche, il faut une tâche avec comme propriétés :
+ * label : String
+ * description : string
+ * ended : string sous le format yyyy-mm-dd (date de fin de tâche)
+ *
+ * Comme ordre, on met la longueur du tableau de tâches
+ *
+ * addTask() renvoie l'id et la date de création de la tâche nouvellement créée
+ */
+const new_task = {label: 'label', description: 'description', ended : '2022-12-08'};
+const id_and_started = await Coopernet.addTask(new_task, tasks.length);
+new_task.id = id_and_started.id;
+new_task.order = tasks.length;
+new_task.started = id_and_started.started;
+tasks.push(new_task);
+
+/**
+ * Pour la mise à jour, on renvoie la carte avec tous ses champs et remplace les champs voulus
+ * Champs en plus :
+ *  isValidate : permet de savoir si une carte a été validée / 1 pour oui et 0 pour non
+ * ça ne sert à rien de modifier l'id et la date de création
+ */
+
+// Si modification d'un champ
+await Coopernet.updateTask({...new_task, label: 'label modifié', isValidate : 1}, new_task.order); //Tâche validée
+
+//Si modification de l'ordre (tasks.length - 1 peut être remplacé par n'importe quelle valeur)
+await Coopernet.updateTask(new_task, tasks.length - 1);
+
+/**
+ * Pour supprimer une carte, on passe son id à la fonction deleteTask()
+ */
+await Coopernet.deleteTask(new_task.id);
+
+/**
+ * getStorage() permet de se reconnecter après avoir fermé le navigateur où rafraîchie la page
+ * Retourne vrai si on s'est connecté sinon retourne faux
+ */
+ await Coopernet.getStorage();
