@@ -5,6 +5,8 @@ import Coopernet from "./../services/Coopernet";
 
 const initialValue = [];
 
+let showFormAddTask = false;
+
 function App() {
   // Déclare une nouvelle variable d'état, que l'on va appeler "count"
   // useState renvoie un tableau. Le premier élément de ce dernier est un état et le deuxième élément est une référence vers la fonction qui permet de modifier cet état.
@@ -49,48 +51,74 @@ function App() {
     setTasks(tasks.filter((task, i) => i !== index));
   };
 
-  const handleClickValidateTask = (index) => {
+  const handleClickValidateTask = (currentTask) => {
     console.log('Dans handleClickValidateTask')
+    console.log(currentTask)
     setTasks(
-      tasks.map((task, i) => {
-        if (i === index) task.isValidate = !task.isValidate;
+      tasks.map((task) => {
+        if (task.id === currentTask.id){
+          if (task.isValidate) {
+            task.isValidate = null;
+          } else {
+            task.isValidate = 1;
+          }
+          Coopernet.updateTask(task);
+          console.log(task)
+        }
         return task;
       })
     );
   };
 
-  const addTaskToServer = (label, description, endDate) => {
+  const addTaskToServer = async (label, description, endDate) => {
     console.log('Dans addTaskToServer')
-    const task = {'label': label, 'description' : description, 'ended':endDate };
-    Coopernet.addTask(task);
+    let task = {'label': label, 'description' : description, 'ended':endDate};
+    const newTaskIdTime = await Coopernet.addTask(task);
+    task = {'label': label, 'description' : description, 'ended':endDate, 'isValidate' : false, 'id' : newTaskIdTime.id, 'created' : newTaskIdTime.created};
+    console.log("c'est ma nouvelle tache", task);
+    setTasks([...tasks, task]);
   };
+
+  const readableDate = (created) => {
+    const date = new Date(created*1000)
+    return date.toLocaleDateString()
+  }
 
   return (
     <div className="App container">
       <div className="d-flex justify-content-between my-4">
-        <button className="btn btn-primary">Ajouter une tâche</button>
+        <button
+          onClick ={(event) => {
+            showFormAddTask = !showFormAddTask;
+          }}
+        className="btn btn-primary">Ajouter une tâche</button>
         <button className="btn btn-secondary">Se déconnecter</button>
       </div>
-      <FormAddTask addTaskToServer={addTaskToServer}/>
+        {showFormAddTask && <FormAddTask 
+          addTaskToServer={addTaskToServer}
+          showFormAddTask={showFormAddTask}  
+        />}
       <h1 className="mb-4 mt-5">Tâches en cours</h1>
       {tasks.map((task, index) => (
-        <Task 
-        task={task} 
-        key={task.id}
-        handleClickDeleteTask={handleClickDeleteTask}
-        handleClickValidateTask={handleClickValidateTask}
-        index={index}
+        !task.isValidate && <Task 
+          task={task} 
+          key={task.id}
+          handleClickDeleteTask={handleClickDeleteTask}
+          handleClickValidateTask={handleClickValidateTask}
+          readableDate={readableDate}
+          index={index}
         />
       ))}
 
       <h1 className="mb-4 mt-5">Tâches validées</h1>
       {tasks.map((task, index) => (
-        <Task 
-        task={task} 
-        key={task.id}
-        handleClickDeleteTask={handleClickDeleteTask}
-        handleClickValidateTask={handleClickValidateTask}
-        index={index}
+        task.isValidate && <Task 
+          task={task} 
+          key={task.id}
+          handleClickDeleteTask={handleClickDeleteTask}
+          handleClickValidateTask={handleClickValidateTask}
+          readableDate={readableDate}
+          index={index}
         />
       ))}
     </div>

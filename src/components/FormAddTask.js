@@ -23,7 +23,8 @@ const FormAddTask = (props) => {
                 <input className =" btn btn-success" type="submit"/>
             </form>
         </section>
-    );
+    );    
+    
 }
 
 export default FormAddTask;
