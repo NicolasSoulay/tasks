@@ -1,4 +1,4 @@
-const FormAddTask = (props) => {
+const FormTask = (props) => {
     return (
         <section>
             <h2>Salut à toi, Jean-Michel dévelopeur, ajoute donc ta tâche.</h2>
@@ -27,4 +27,4 @@ const FormAddTask = (props) => {
     
 }
 
-export default FormAddTask;
+export default FormTask;

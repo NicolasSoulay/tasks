@@ -11,7 +11,7 @@ const Task = (props) => {
                     onClick ={(event) => {
                     props.handleClickValidateTask(props.task);
                     }}
-                className= "btn btn-success me-1">{props.task.isValidate?"Invalider" : "Valider"}</button>
+                className= {!props.task.isValidate ? "btn btn-success me-1" : "btn btn-warning me-1" }>{props.task.isValidate?"Invalider" : "Valider"}</button>
                 {!props.task.isValidate && <button className="btn btn-primary me-1">Mettre à jour</button>}
                 <button 
                     onClick ={() => {

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import Task from "./Task";
-import FormAddTask from "./FormAddTask";
+import FormTask from "./FormTask";
 import Coopernet from "./../services/Coopernet";
 
 const initialValue = [];
 
-let showFormAddTask = false;
 
 function App() {
   // Déclare une nouvelle variable d'état, que l'on va appeler "count"
   // useState renvoie un tableau. Le premier élément de ce dernier est un état et le deuxième élément est une référence vers la fonction qui permet de modifier cet état.
   const [tasks, setTasks] = useState(initialValue);
+  const [showFormAddTask, setShowFormAddTask] = useState(false)
   const fetchTask = async () => {
     // Récupération des tâches : 
     const server_tasks = await Coopernet.getTasks();
@@ -53,7 +53,6 @@ function App() {
 
   const handleClickValidateTask = (currentTask) => {
     console.log('Dans handleClickValidateTask')
-    console.log(currentTask)
     setTasks(
       tasks.map((task) => {
         if (task.id === currentTask.id){
@@ -63,7 +62,6 @@ function App() {
             task.isValidate = 1;
           }
           Coopernet.updateTask(task);
-          console.log(task)
         }
         return task;
       })
@@ -79,8 +77,8 @@ function App() {
     setTasks([...tasks, task]);
   };
 
-  const readableDate = (created) => {
-    const date = new Date(created*1000)
+  const readableDate = (unreadableDate) => {
+    const date = new Date(unreadableDate*1000)
     return date.toLocaleDateString()
   }
 
@@ -89,15 +87,14 @@ function App() {
       <div className="d-flex justify-content-between my-4">
         <button
           onClick ={(event) => {
-            showFormAddTask = !showFormAddTask;
+            setShowFormAddTask(!showFormAddTask)
           }}
-        className="btn btn-primary">Ajouter une tâche</button>
+        className={!showFormAddTask ? "btn btn-primary" : "btn btn-danger"}>{!showFormAddTask ? 'Ajouter une tâche' : 'retour'}</button>
         <button className="btn btn-secondary">Se déconnecter</button>
       </div>
-        {showFormAddTask && <FormAddTask 
-          addTaskToServer={addTaskToServer}
-          showFormAddTask={showFormAddTask}  
-        />}
+      {showFormAddTask && <FormTask 
+        addTaskToServer={addTaskToServer}
+      />}
       <h1 className="mb-4 mt-5">Tâches en cours</h1>
       {tasks.map((task, index) => (
         !task.isValidate && <Task 
