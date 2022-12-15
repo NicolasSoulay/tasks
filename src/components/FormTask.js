@@ -20,7 +20,7 @@ const FormTask = (props) => {
                     <label className ="form-label" htmlFor="endDate">Date de fin</label>
                     <input className ="form-control" type="date" name="endDate" id="endDate" />
                 </div>
-                <input className =" btn btn-success" type="submit"/>
+                <input className ="btn btn-success" type="submit"/>
             </form>
         </section>
     );    

@@ -75,6 +75,7 @@ function App() {
     task = {'label': label, 'description' : description, 'ended':endDate, 'isValidate' : false, 'id' : newTaskIdTime.id, 'created' : newTaskIdTime.created};
     console.log("c'est ma nouvelle tache", task);
     setTasks([...tasks, task]);
+    setShowFormAddTask(!showFormAddTask);
   };
 
   const readableDate = (unreadableDate) => {
