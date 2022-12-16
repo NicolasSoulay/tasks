@@ -4,13 +4,18 @@ import FormTask from "./FormTask";
 import Coopernet from "./../services/Coopernet";
 
 const initialValue = [];
+let updateTrueAddFalse = true;
 
 
 function App() {
   // Déclare une nouvelle variable d'état, que l'on va appeler "count"
   // useState renvoie un tableau. Le premier élément de ce dernier est un état et le deuxième élément est une référence vers la fonction qui permet de modifier cet état.
   const [tasks, setTasks] = useState(initialValue);
-  const [showFormAddTask, setShowFormAddTask] = useState(false)
+  const [showFormTask, setShowFormTask] = useState(false)
+  const [idTmp, setIdTmp] = useState('')
+  const [labelTmp, setLabelTmp] = useState('')
+  const [descTmp, setDescTmp] = useState('')
+  const [dateTmp, setDateTmp] = useState('')
   const fetchTask = async () => {
     // Récupération des tâches : 
     const server_tasks = await Coopernet.getTasks();
@@ -68,33 +73,77 @@ function App() {
     );
   };
 
+  const handleClickShowUpdateForm = (id, label, desc, date) => {
+    console.log('Dans handleClickUpdateTask')
+    updateTrueAddFalse = true;
+    setShowFormTask(!showFormTask)
+    setIdTmp(id)
+    setLabelTmp(label)
+    setDescTmp(desc)
+    setDateTmp(date)
+  }
+
+
   const addTaskToServer = async (label, description, endDate) => {
     console.log('Dans addTaskToServer')
     let task = {'label': label, 'description' : description, 'ended':endDate};
-    const newTaskIdTime = await Coopernet.addTask(task);
-    task = {'label': label, 'description' : description, 'ended':endDate, 'isValidate' : false, 'id' : newTaskIdTime.id, 'created' : newTaskIdTime.created};
+    const newTask = await Coopernet.addTask(task);
+    task = {'label': label, 'description' : description, 'ended':endDate, 'isValidate' : false, 'id' : newTask.id, 'created' : newTask.created};
     console.log("c'est ma nouvelle tache", task);
     setTasks([...tasks, task]);
-    setShowFormAddTask(!showFormAddTask);
+    setShowFormTask(!showFormTask);
+  };
+
+  const updateTaskToServer = (currentLabel, currentDescription, currentendDate) => {
+    console.log(idTmp)
+    setTasks(
+      tasks.map((task) => {
+        if (task.id === idTmp){
+          task.label = currentLabel;
+          task.description = currentDescription;
+          task.ended = currentendDate;
+          task.isValidate = null;
+          Coopernet.updateTask(task);
+        }
+        console.log(task)
+        setIdTmp('')
+        setLabelTmp('')
+        setDescTmp('')
+        setDateTmp('')
+        return task;
+      })
+    );
+    setShowFormTask(!showFormTask);
   };
 
   const readableDate = (unreadableDate) => {
     const date = new Date(unreadableDate*1000)
-    return date.toLocaleDateString()
+    return date.toISOString().split('T')[0]
+     
   }
+
 
   return (
     <div className="App container">
       <div className="d-flex justify-content-between my-4">
         <button
           onClick ={(event) => {
-            setShowFormAddTask(!showFormAddTask)
+            if (updateTrueAddFalse) {
+              updateTrueAddFalse = false;
+            }
+            setShowFormTask(!showFormTask)
           }}
-        className={!showFormAddTask ? "btn btn-primary" : "btn btn-danger"}>{!showFormAddTask ? 'Ajouter une tâche' : 'retour'}</button>
+        className={!showFormTask ? "btn btn-primary" : "btn btn-danger"}>{!showFormTask ? 'Ajouter une tâche' : 'retour'}</button>
         <button className="btn btn-secondary">Se déconnecter</button>
       </div>
-      {showFormAddTask && <FormTask 
+      {showFormTask && <FormTask 
         addTaskToServer={addTaskToServer}
+        updateTaskToServer={updateTaskToServer}
+        updateTrueAddFalse={updateTrueAddFalse}
+        readableDate={readableDate}
+        labelTmp={labelTmp}
+        descTmp={descTmp}
+        dateTmp={dateTmp}
       />}
       <h1 className="mb-4 mt-5">Tâches en cours</h1>
       {tasks.map((task, index) => (
@@ -103,6 +152,7 @@ function App() {
           key={task.id}
           handleClickDeleteTask={handleClickDeleteTask}
           handleClickValidateTask={handleClickValidateTask}
+          handleClickShowUpdateForm={handleClickShowUpdateForm}
           readableDate={readableDate}
           index={index}
         />
@@ -115,6 +165,7 @@ function App() {
           key={task.id}
           handleClickDeleteTask={handleClickDeleteTask}
           handleClickValidateTask={handleClickValidateTask}
+          handleClickShowUpdateForm={handleClickShowUpdateForm}
           readableDate={readableDate}
           index={index}
         />

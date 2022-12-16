@@ -1,11 +1,16 @@
 const FormTask = (props) => {
     return (
         <section>
-            <h2>Salut à toi, Jean-Michel dévelopeur, ajoute donc ta tâche.</h2>
+            {props.updateTrueAddFalse ? <h2>Salut à toi, Jean-Michel dévelopeur, modifie donc ta tâche.</h2> : <h2>Salut à toi, Jean-Michel dévelopeur, ajoute donc ta tâche.</h2>}
             <form 
                 onSubmit={(event) => {
-                    event.preventDefault();
-                    props.addTaskToServer(document.querySelector("#label").value, document.querySelector("#description").value, document.querySelector("#endDate").value);
+                        event.preventDefault();
+                        console.log(props.updateTrueAddFalse)
+                    if (props.updateTrueAddFalse){
+                        props.updateTaskToServer(document.querySelector("#label").value, document.querySelector("#description").value, document.querySelector("#endDate").value);
+                    } else {
+                        props.addTaskToServer(document.querySelector("#label").value, document.querySelector("#description").value, document.querySelector("#endDate").value);
+                    }
                 }}
             className="d-flex justify-content-between align-items-end" action="">
                 <div className="me-2 w-25">
